@@ -1,1 +1,94 @@
-<!DOCTYPE html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"><title>Mera Video App</title><style>body{background:#000;color:#fff;text-align:center;font-family:sans-serif;padding:15px}select,input,button{width:95%;padding:14px;margin:8px 0;border-radius:10px;border:none;font-size:16px}button{background:orange;color:#fff;font-weight:bold}.card{background:#222;padding:15px;border-radius:15px}img{max-width:100%;border-radius:12px;margin-top:10px}</style></head><body><h2>🙏 मेरा वीडियो ऐप</h2><div class="card"><input type="file" id="photo" accept="image/*"><img id="preview" style="display:none"><select id="vtype"><option value="durga">दुर्गा - शेर पर</option><option value="shiv">शिव - डमरू</option><option value="krishna">कृष्ण</option><option value="hanuman">हनुमान</option><option value="ram">राम</option><option value="kali">काली</option><option value="ganesh">गणेश</option></select><button onclick="make()">VIDEO BANAO</button><p id="status"></p></div><script>let p=document.getElementById('preview');document.getElementById('photo').onchange=e=>{p.src=URL.createObjectURL(e.target.files[0]);p.style.display='block'};function make(){let t=document.getElementById('vtype').value;let pr={durga:'Goddess Durga on lion walking on clouds, diya, petals',shiv:'Lord Shiva on clouds damru',krishna:'Krishna flute peacock',hanuman:'Hanuman flying',ram:'Ram with bow',kali:'Kali divine',ganesh:'Ganesha blessing'};document.getElementById('status').innerText="Prompt: "+pr[t];}</script></body></html>`
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mera Video App - Bhakti Video Maker</title>
+<style>
+body{background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:10px;margin:0}
+.card{background:#222;max-width:400px;margin:20px auto;padding:15px;border-radius:20px;box-shadow:0 0 20px #000}
+input,select,button{width:100%;padding:14px;margin:10px 0;border-radius:12px;border:none;font-size:16px;box-sizing:border-box}
+button{background:#ff9900;color:#fff;font-weight:bold;font-size:18px;cursor:pointer}
+button:disabled{background:#555}
+canvas{width:100%;border-radius:15px;display:none;background:#000}
+img#preview{width:100%;border-radius:15px;display:none;max-height:500px;object-fit:contain;background:#000}
+#status{margin:10px;color:#ffcc00;min-height:20px}
+a#downloadBtn{display:none;background:#00c853;color:#fff;padding:14px;border-radius:12px;text-decoration:none;margin-top:10px;font-weight:bold}
+</style>
+</head>
+<body>
+<h2>🙏 मेरा वीडियो ऐप</h2>
+<div class="card">
+<input type="file" id="fileInput" accept="image/*">
+<img id="preview">
+<canvas id="canvas"></canvas>
+<select id="styleSelect">
+<option value="durga">दुर्गा - शेर पर</option>
+<option value="krishna">कृष्ण - मुरली</option>
+<option value="shiv">शिव - कैलाश</option>
+<option value="hanuman">हनुमान - गदा</option>
+</select>
+<button id="makeBtn">VIDEO BANAO</button>
+<div id="status">फोटो चुनो और VIDEO BANAO दबाओ</div>
+<a id="downloadBtn" download="bhakti-video.webm">⬇️ VIDEO DOWNLOAD KARO</a>
+<video id="videoOut" controls style="width:100%;border-radius:15px;display:none;margin-top:10px"></video>
+<p style="font-size:12px;opacity:0.7" id="promptText">Prompt: Goddess Durga on lion walking on clouds</p>
+</div>
+<script>
+const fileInput=document.getElementById('fileInput');
+const preview=document.getElementById('preview');
+const canvas=document.getElementById('canvas');
+const ctx=canvas.getContext('2d');
+const makeBtn=document.getElementById('makeBtn');
+const statusDiv=document.getElementById('status');
+const downloadBtn=document.getElementById('downloadBtn');
+const videoOut=document.getElementById('videoOut');
+let img=new Image();
+let imgLoaded=false;
+fileInput.onchange=(e)=>{
+ const file=e.target.files[0];
+ if(!file) return;
+ const url=URL.createObjectURL(file);
+ img.src=url;
+ preview.src=url;
+ preview.style.display='block';
+ canvas.style.display='none';
+ videoOut.style.display='none';
+ downloadBtn.style.display='none';
+ img.onload=()=>{
+   imgLoaded=true;
+   statusDiv.innerText="फोटो लोड हो गई! अब VIDEO BANAO दबाओ";
+ };
+};
+makeBtn.onclick=async()=>{
+ if(!imgLoaded){ statusDiv.innerText="पहले फोटो चुनो!"; return; }
+ makeBtn.disabled=true;
+ statusDiv.innerText="⏳ वीडियो बन रहा है... 5 सेकंड रुको...";
+ canvas.style.display='block';
+ preview.style.display='none';
+ videoOut.style.display='none';
+ downloadBtn.style.display='none';
+ canvas.width=720;
+ canvas.height=1280;
+ const stream=canvas.captureStream(30);
+ let chunks=[];
+ const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'});
+ recorder.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
+ recorder.onstop=()=>{
+   const blob=new Blob(chunks,{type:'video/webm'});
+   const url=URL.createObjectURL(blob);
+   videoOut.src=url;
+   videoOut.style.display='block';
+   downloadBtn.href=url;
+   downloadBtn.style.display='block';
+   statusDiv.innerText="✅ वीडियो बन गया! नीचे Download करो";
+   makeBtn.disabled=false;
+ };
+ recorder.start();
+ let start=performance.now();
+ let duration=5000;
+ function draw(now){
+   let elapsed=now-start;
+   let progress=elapsed/duration;
+   if(progress>1) progress=1;
+   let
