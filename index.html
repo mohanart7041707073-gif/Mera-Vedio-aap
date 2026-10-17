@@ -3,92 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Mera Video App - Bhakti Video Maker</title>
+<title>माँ दुर्गा AI - फोटो & वीडियो 9:16</title>
 <style>
-body{background:#111;color:#fff;font-family:sans-serif;text-align:center;padding:10px;margin:0}
-.card{background:#222;max-width:400px;margin:20px auto;padding:15px;border-radius:20px;box-shadow:0 0 20px #000}
-input,select,button{width:100%;padding:14px;margin:10px 0;border-radius:12px;border:none;font-size:16px;box-sizing:border-box}
-button{background:#ff9900;color:#fff;font-weight:bold;font-size:18px;cursor:pointer}
-button:disabled{background:#555}
-canvas{width:100%;border-radius:15px;display:none;background:#000}
-img#preview{width:100%;border-radius:15px;display:none;max-height:500px;object-fit:contain;background:#000}
-#status{margin:10px;color:#ffcc00;min-height:20px}
-a#downloadBtn{display:none;background:#00c853;color:#fff;padding:14px;border-radius:12px;text-decoration:none;margin-top:10px;font-weight:bold}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#0a0a0a;color:#fff;min-height:100vh;padding:16px}
+h1{text-align:center;margin:10px 0 6px;font-size:26px}
+.sub{text-align:center;color:#aaa;font-size:13px;margin-bottom:14px}
+.tabs{display:flex;gap:8px;justify-content:center;margin:12px 0;flex-wrap:wrap}
+.tab{padding:10px 18px;border-radius:25px;border:2px solid #2a2a2a;background:#1a1a1a;color:#fff;cursor:pointer;font-weight:700;font-size:15px}
+.tab.active{background:#ff1a1a;border-color:#ff1a1a}
+textarea{width:100%;background:#1a1a1a;border:2px solid #333;color:#fff;padding:16px;border-radius:14px;font-size:17px;min-height:90px;outline:none}
+.btn{width:100%;margin-top:12px;padding:16px;background:linear-gradient(135deg,#ff1a1a,#ff6a00);border:none;border-radius:14px;color:#fff;font-size:19px;font-weight:800;cursor:pointer}
+.result{margin-top:16px;background:#151515;border-radius:16px;padding:10px;min-height:360px;display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid #222}
+.result img,.result video{width:100%;max-width:360px;aspect-ratio:9/16;object-fit:cover;border-radius:12px}
+.loader{display:none;text-align:center;padding:30px}
+.loader.show{display:block}
+.download{margin-top:12px;display:none;background:#fff;color:#000;padding:12px 22px;border-radius:25px;text-decoration:none;font-weight:800;font-size:16px}
 </style>
 </head>
 <body>
-<h2>🙏 मेरा वीडियो ऐप</h2>
-<div class="card">
-<input type="file" id="fileInput" accept="image/*">
-<img id="preview">
-<canvas id="canvas"></canvas>
-<select id="styleSelect">
-<option value="durga">दुर्गा - शेर पर</option>
-<option value="krishna">कृष्ण - मुरली</option>
-<option value="shiv">शिव - कैलाश</option>
-<option value="hanuman">हनुमान - गदा</option>
-</select>
-<button id="makeBtn">VIDEO BANAO</button>
-<div id="status">फोटो चुनो और VIDEO BANAO दबाओ</div>
-<a id="downloadBtn" download="bhakti-video.webm">⬇️ VIDEO DOWNLOAD KARO</a>
-<video id="videoOut" controls style="width:100%;border-radius:15px;display:none;margin-top:10px"></video>
-<p style="font-size:12px;opacity:0.7" id="promptText">Prompt: Goddess Durga on lion walking on clouds</p>
+<h1>🙏 माँ दुर्गा AI फोटो ऐप</h1>
+<p class="sub">9:16 HD | फोटो + वीडियो | गैलरी में सेव</p>
+<div class="tabs">
+  <div class="tab active" id="photoTab" onclick="switchMode('photo')">📸 फोटो</div>
+  <div class="tab" id="videoTab" onclick="switchMode('video')">🎥 वीडियो</div>
 </div>
+<div class="tabs" id="durRow" style="display:none">
+  <div class="tab" id="d5" onclick="setDur(5)">5s</div>
+  <div class="tab active" id="d10" onclick="setDur(10)">10s</div>
+  <div class="tab" id="d15" onclick="setDur(15)">15s</div>
+  <div class="tab" id="d30" onclick="setDur(30)">30s</div>
+</div>
+<textarea id="prompt">माँ दुर्गा शेर पर सवार, लाल साड़ी, दिव्य प्रकाश, मंदिर में</textarea>
+<button class="btn" id="genBtn" onclick="generate()">📸 फोटो बनाओ</button>
+<div class="result" id="result">
+  <div id="ph" style="color:#666;text-align:center">यहाँ आपकी<br>9:16 फोटो / वीडियो आएगी</div>
+  <div class="loader" id="loader"><div style="font-size:42px">✨</div><div id="loadText">बन रहा है...</div></div>
+  <img id="outImg" style="display:none">
+  <video id="outVideo" style="display:none" controls autoplay loop muted playsinline></video>
+</div>
+<div style="text-align:center"><a id="dlBtn" class="download" download>⬇️ गैलरी में सेव करें</a></div>
 <script>
-const fileInput=document.getElementById('fileInput');
-const preview=document.getElementById('preview');
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d');
-const makeBtn=document.getElementById('makeBtn');
-const statusDiv=document.getElementById('status');
-const downloadBtn=document.getElementById('downloadBtn');
-const videoOut=document.getElementById('videoOut');
-let img=new Image();
-let imgLoaded=false;
-fileInput.onchange=(e)=>{
- const file=e.target.files[0];
- if(!file) return;
- const url=URL.createObjectURL(file);
- img.src=url;
- preview.src=url;
- preview.style.display='block';
- canvas.style.display='none';
- videoOut.style.display='none';
- downloadBtn.style.display='none';
- img.onload=()=>{
-   imgLoaded=true;
-   statusDiv.innerText="फोटो लोड हो गई! अब VIDEO BANAO दबाओ";
- };
-};
-makeBtn.onclick=async()=>{
- if(!imgLoaded){ statusDiv.innerText="पहले फोटो चुनो!"; return; }
- makeBtn.disabled=true;
- statusDiv.innerText="⏳ वीडियो बन रहा है... 5 सेकंड रुको...";
- canvas.style.display='block';
- preview.style.display='none';
- videoOut.style.display='none';
- downloadBtn.style.display='none';
- canvas.width=720;
- canvas.height=1280;
- const stream=canvas.captureStream(30);
- let chunks=[];
- const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'});
- recorder.ondataavailable=e=>{ if(e.data.size>0) chunks.push(e.data); };
- recorder.onstop=()=>{
-   const blob=new Blob(chunks,{type:'video/webm'});
-   const url=URL.createObjectURL(blob);
-   videoOut.src=url;
-   videoOut.style.display='block';
-   downloadBtn.href=url;
-   downloadBtn.style.display='block';
-   statusDiv.innerText="✅ वीडियो बन गया! नीचे Download करो";
-   makeBtn.disabled=false;
- };
- recorder.start();
- let start=performance.now();
- let duration=5000;
- function draw(now){
-   let elapsed=now-start;
-   let progress=elapsed/duration;
-   if(progress>1) progress=1;
-   let
+let mode='photo'; window.videoDurationSec=10;
+function setDur(s){window.videoDurationSec=s; document.querySelectorAll('#durRow .tab').forEach(t=>t.classList.remove('active')); document.getElementById('d'+s).classList.add('active'); if(mode==='video') document.getElementById('genBtn').innerText='🎥 '+s+'s वीडियो बनाओ';}
+function switchMode(m){mode=m; document.getElementById('photoTab').classList.remove('active'); document.getElementById('videoTab').classList.remove('active'); document.getElementById(m+'Tab').classList.add('active'); setDur(window.videoDurationSec); document.getElementById('genBtn').innerText=m==='photo'?'📸 फोटो बनाओ':'🎥 '+window.videoDurationSec+'s वीडियो बनाओ'; document.getElementById('durRow').style.display=m==='video'?'flex':'none';}
+function buildSafePrompt(hindi){return "Hindu goddess Durga, divine mother, benevolent beautiful Indian goddess, wearing traditional bright red saree with golden border, sitting on lion, divine glowing halo, peaceful smile, temple background, devotional art, highly detailed face, spiritual light, 9:16 portrait, ultra realistic, masterpiece, 4k, cinematic lighting, no weapon, no violence, serene, "+hindi.replace(/माँ|मां|दुर्गा|शेर/g,' ');}
+async function generate(){
+  const raw=document.getElementById('prompt').value.trim(); if(!raw) return alert('कुछ लिखो');
+  const btn=document.getElementById('genBtn'), loader=document.getElementById('loader'), ph=document.getElementById('ph'), img=document.getElementById('outImg'), video=document.getElementById('outVideo'), dl=document.getElementById('dlBtn');
+  btn.disabled=true; ph.style.display='none'; img.style.display='none'; video.style.display='none'; dl.style.display='none'; loader.classList.add('show');
+  document.getElementById('loadText').innerText=mode==='photo'?'9:16 फोटो बन रही है...':window.videoDurationSec+'s 9:16 वीडियो बन रहा है...';
+  try{
+    const safePrompt=buildSafePrompt(raw); const seed=Math.floor(Math.random()*9999999);
+    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(safePrompt)}?width=720&height=1280&seed=${seed}&nologo=true&model=flux&enhance=true`;
+    const loadedImg=new Image(); loadedImg.crossOrigin="anonymous"; loadedImg.src=url;
+    await new Promise((res,rej)=>{loadedImg.onload=res; loadedImg.onerror=()=>rej(new Error('load failed')); setTimeout(()=>rej(new Error('timeout')),25000);});
+    if(mode==='photo'){img.src=url; img.style.display='block'; dl.href=url; dl.download='maa-durga-9x16.jpg'; dl.style.display='inline-block'; dl.innerText='⬇️ फोटो गैलरी में सेव करें';}
+    else{const canvas=document.createElement('canvas'); canvas.width=720; canvas.height=1280; const ctx=canvas.getContext('2d'); const stream=canvas.captureStream(30); const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'}); let chunks=[]; recorder.ondataavailable=e=>{if(e.data.size>0) chunks.push(e.data);}; const blobPromise=new Promise(resolve=>{recorder.onstop=()=>resolve(new Blob(chunks,{type:'video/webm'}));}); recorder.start(100); let frames=0; const totalFrames=window.videoDurationSec*30; function draw(){if(frames>=totalFrames){recorder.stop(); return;} let p=frames/totalFrames; let scale=1+p*0.35; let moveX=Math.sin(p*Math.PI*2)*10; let moveY=-p*60; let w=canvas.width*scale, h=canvas.height*scale; let x=(canvas.width-w)/2+moveX, y=(canvas.height-h)/2+moveY; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(loadedImg,x,y,w,h); ctx.fillStyle=`rgba(255,210,120,${0.03+p*0.05})`; ctx.fillRect(0,0,canvas.width,canvas.height); frames++; requestAnimationFrame(draw);} draw(); const blob=await blobPromise; const vUrl=URL.createObjectURL(blob); video.src=vUrl; video.style.display='block'; dl.href=vUrl; dl.download='maa-durga-'+window.videoDurationSec+'s-9x16.webm'; dl.style.display='inline-block'; dl.innerText='⬇️ '+window.videoDurationSec+'s वीडियो गैलरी में सेव करें'; video.play();}
+  }catch(e){ph.style.display='block'; ph.innerHTML='❌ नहीं बना, दोबारा ट्राय करो';} finally{loader.classList.remove('show'); btn.disabled=false;}
+}
+</script>
+</body>
+</html>
