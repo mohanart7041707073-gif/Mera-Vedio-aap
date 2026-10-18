@@ -3,107 +3,148 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Sanatan HD Video Maker - 1080p</title>
+<title>Sanatan HD - No Limit</title>
 <style>
-body{background:#0f0f0f;color:#fff;font-family:sans-serif;text-align:center;padding:15px;margin:0}
-h1{color:#ffcc00;text-shadow:0 0 10px #ffcc00}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:15px 0}
-button{padding:12px;border:none;border-radius:10px;background:linear-gradient(45deg,#ff8c00,#ffcc00);color:#000;font-weight:bold;cursor:pointer}
-button:active{transform:scale(0.95)}
-#result img,#result video{width:100%;max-width:400px;border-radius:15px;margin-top:15px;border:2px solid #ffcc00}
-#dl{margin-top:10px;display:none;padding:12px 20px;background:#00ff88;color:#000;border-radius:8px;text-decoration:none;font-weight:bold}
+*{margin:0;padding:0;box-sizing:border-box;font-family:system-ui}
+body{background:#080808;color:#fff;padding:12px;text-align:center}
+h1{color:#ffcc00;font-size:20px;margin:8px 0}
+.sub{color:#888;font-size:12px;margin-bottom:10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.gbtn{padding:13px 6px;border:none;border-radius:10px;background:linear-gradient(135deg,#ffaa1a,#ff6a00);color:#000;font-weight:bold;cursor:pointer;font-size:13px}
+.gbtn:disabled{opacity:0.4}
+.durRow{display:flex;gap:8px;justify-content:center;margin:10px 0}
+.dtab{padding:8px 16px;border-radius:20px;border:1px solid #333;background:#1a1a1a;color:#fff;cursor:pointer}
+.dtab.active{background:#ffaa1a;color:#000;border-color:#ffaa1a;font-weight:bold}
+textarea{width:100%;background:#1a1a1a;border:2px solid #333;color:#fff;padding:12px;border-radius:10px;font-size:14px;min-height:75px}
+.btns{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.btn{padding:14px;border:none;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer}
+.btn1{background:#fff;color:#000} .btn2{background:linear-gradient(135deg,#ffaa1a,#ff6a00);color:#000}
+.btn:disabled{opacity:0.5}
+.result{margin-top:14px;background:#151515;border-radius:14px;padding:8px;min-height:380px}
+.result img,.result video{width:100%;max-width:360px;aspect-ratio:9/16;object-fit:cover;border-radius:10px;display:none;margin:auto}
+.loader{display:none;padding:20px} .loader.show{display:block}
+.dl{display:none;margin-top:10px;background:#00ff88;color:#000;padding:10px 18px;border-radius:20px;text-decoration:none;font-weight:bold}
+.timer{color:#ffaa1a;font-weight:bold;margin:8px 0}
 </style>
 </head>
 <body>
-<h1>🙏 Sanatan HD Darshan 🙏</h1>
-<p>किसी भी देवी-देवता पर क्लिक करो - HD फोटो + HD वीडियो बनेगा</p>
+<h1>🙏 सनातन HD - असली फोटो 🙏</h1>
+<p class="sub">अब Limit नहीं लगेगी | मर्यादित कपड़े | Real Photo</p>
 
 <div class="grid">
-<button onclick="make('krishna')">🦚 श्रीकृष्ण</button>
-<button onclick="make('shankar')">🔱 महादेव शंकर</button>
-<button onclick="make('vishnu')">🌀 विष्णु जी</button>
-<button onclick="make('durga')">🦁 माँ दुर्गा</button>
-<button onclick="make('radha')">🌸 राधा रानी</button>
-<button onclick="make('saraswati')">📚 सरस्वती माँ</button>
-<button onclick="make('ram')">🏹 राम सीता दरबार</button>
-<button onclick="make('hanuman')">🚩 हनुमान जी</button>
-<button onclick="make('krishnaArjun')">⚔️ कृष्ण अर्जुन गीता</button>
-<button onclick="make('brahmand')">🌌 ब्रह्मांड</button>
-<button onclick="make('nature')">🦚 कुदरत पशु पक्षी</button>
-<button onclick="make('janwar')">🦁 शेर हिरण प्रकृति</button>
+<button class="gbtn" onclick="fill('krishna')">🦚 श्रीकृष्ण</button>
+<button class="gbtn" onclick="fill('shankar')">🔱 शंकर जी</button>
+<button class="gbtn" onclick="fill('vishnu')">🌀 विष्णु जी</button>
+<button class="gbtn" onclick="fill('durga')">🦁 माँ दुर्गा</button>
+<button class="gbtn" onclick="fill('radha')">🌸 राधा जी</button>
+<button class="gbtn" onclick="fill('saraswati')">📚 सरस्वती जी</button>
+<button class="gbtn" onclick="fill('ram')">🏹 राम सीता</button>
+<button class="gbtn" onclick="fill('hanuman')">🚩 हनुमान जी</button>
+<button class="gbtn" onclick="fill('krishnaArjun')">⚔️ कृष्ण अर्जुन</button>
+<button class="gbtn" onclick="fill('ganesh')">🙏 गणेश जी</button>
+<button class="gbtn" onclick="fill('brahmand')">🌌 ब्रह्मांड</button>
+<button class="gbtn" onclick="fill('nature')">🦚 कुदरत</button>
 </div>
 
-<div id="status"></div>
-<div id="result">
-<img id="img" style="display:none">
-<video id="vid" controls loop playsinline style="display:none"></video><br>
-<a id="dl" download>⬇️ HD वीडियो सेव करें</a>
+<div class="durRow" id="durRow">
+<div class="dtab active" onclick="setDur(5,this)">5s</div>
+<div class="dtab" onclick="setDur(10,this)">10s</div>
+<div class="dtab" onclick="setDur(15,this)">15s</div>
+<div class="dtab" onclick="setDur(30,this)">30s</div>
+</div>
+
+<textarea id="prompt">Maa Durga fully clothed</textarea>
+<div id="timer" class="timer"></div>
+
+<div class="btns">
+<button class="btn btn1" id="pBtn" onclick="generatePhoto()">🖼️ फोटो बनाओ</button>
+<button class="btn btn2" id="vBtn" onclick="generateVideoOnly()">🎬 वीडियो बनाओ</button>
+</div>
+
+<div class="result">
+<div id="ph" style="color:#666;padding:30px">यहाँ आपकी असली HD फोटो आयेगी</div>
+<div id="loader" class="loader"><div style="font-size:40px">🙏</div><div id="loadText">बना रहा हूँ...</div></div>
+<img id="outImg">
+<video id="outVideo" controls autoplay loop muted playsinline></video>
+<a id="dlBtn" class="dl" download>⬇️ सेव करें</a>
 </div>
 
 <script>
+let videoDurationSec=5; let lastImage=null; let canGenerate=true; let countdown=null;
 const PROMPTS={
-krishna:"Lord Shri Krishna playing flute in Vrindavan, peacock feather, ultra detailed, divine light, 8k, cinematic, highly detailed face",
-shankar:"Lord Shiva meditating on Kailash mountain, trishul damru, moon on head, cosmic energy, 8k ultra hd, photorealistic",
-vishnu:"Lord Vishnu on Sheshnag in Kshir Sagar, Laxmi at feet, cosmic ocean, ultra hd 8k, divine",
-durga:"Maa Durga on lion, 18 hands weapons, red saree, navratri, ultra detailed face, 8k, divine eyes",
-radha:"Radha Rani in Barsana, beautiful divine girl, lotus, ultra beautiful, 8k, detailed eyes",
-saraswati:"Goddess Saraswati on white swan, veena book, white saree, knowledge light, 8k",
-ram:"Ram Sita Darbar in Ayodhya with Lakshman Hanuman, royal palace, divine, 8k ultra hd",
-hanuman:"Lord Hanuman carrying mountain, flying, gada, orange sindoor, powerful, 8k photorealistic",
-krishnaArjun:"Bhagavad Gita scene Krishna and Arjun on chariot in Kurukshetra war, cosmic Vishwaroop, 8k",
-brahmand:"Sanatan Brahmand universe, galaxies, Om, temples in space, cosmic Hinduism, 8k",
-nature:"Indian peacock, parrot, deer in beautiful forest, sunrise, ultra hd nature photography 8k",
-janwar:"Lion tiger in jungle with waterfall, divine forest, ultra realistic 8k wildlife"
+krishna:"photorealistic DSLR photo of Lord Krishna as real young Indian man, real skin, full yellow dhoti kurta covering body, peacock feather, Vrindavan, ultra detailed real face, not cartoon not anime",
+shankar:"photorealistic DSLR photo of Lord Shiva as real Indian sage with real beard, full tiger skin dhoti covering body, trishul, moon, Kailash, real human face, not cartoon",
+vishnu:"photorealistic photo of Lord Vishnu as real Indian king, full yellow dhoti kurta, Goddess Lakshmi in full modest red saree, Sheshnag, real, not cartoon",
+durga:"photorealistic photo of Maa Durga as real Indian mother goddess, FULLY CLOTHED in full length modest red saree with full sleeves covering chest belly legs, no cleavage no midriff, real mother face, real jewellery, real lion, respectful, not cartoon",
+radha:"photorealistic photo of Radha Rani as real Indian woman, FULLY CLOTHED in full modest saree with dupatta covering head and chest, real face, not cartoon",
+saraswati:"photorealistic photo of Goddess Saraswati as real Indian woman, FULLY CLOTHED in full white saree covering full body, swan veena, real face, not cartoon",
+ram:"photorealistic photo of Lord Ram and Sita as real Indian king queen, Ram in full royal dhoti, Sita in full modest red saree with veil covering full body, Ayodhya palace, real faces, not cartoon",
+hanuman:"photorealistic photo of Lord Hanuman as real powerful devotee, full orange dhoti covering body, gada, mountain, real, not cartoon",
+krishnaArjun:"photorealistic photo of Krishna and Arjun as two real Indian men, both fully clothed in royal armor dhoti, real wooden chariot with real white horses, Kurukshetra, real faces, not cartoon",
+ganesh:"photorealistic photo of Lord Ganesha idol as real stone idol with real marigold flowers, real temple light, not cartoon",
+brahmand:"photorealistic space photo of Sanatan universe, real galaxies nebula, Om light, NASA style",
+nature:"photorealistic DSLR wildlife photo of real Indian peacock parrot deer tiger in real green forest waterfall, National Geographic"
 };
+function setDur(s,el){videoDurationSec=s; document.querySelectorAll('.dtab').forEach(t=>t.classList.remove('active')); el.classList.add('active');}
+function fill(type){document.getElementById('prompt').value=PROMPTS[type]; generatePhoto();}
 
-async function make(type){
-let status=document.getElementById('status');
-let imgEl=document.getElementById('img');
-let vidEl=document.getElementById('vid');
-let dl=document.getElementById('dl');
-status.innerText="⏳ HD फोटो बन रही है...";
-imgEl.style.display='none'; vidEl.style.display='none'; dl.style.display='none';
-
-let prompt=encodeURIComponent(PROMPTS[type]+", masterpiece, sharp focus, high detail");
-// HD 1080x1920
-let imgUrl=`https://image.pollinations.ai/prompt/${prompt}?width=1080&height=1920&nologo=true&enhance=true&model=flux`;
-
-let img=new Image();
-img.crossOrigin="anonymous";
-img.src=imgUrl + "&seed=" + Date.now();
-
-img.onload=async ()=>{
-imgEl.src=img.src; imgEl.style.display='block';
-status.innerText="🎬 अब HD वीडियो बन रहा है... कृपया 5 सेकंड रुको";
-await createCanvasVideo(img, 8, vidEl, dl);
-status.innerText="✅ HD वीडियो तैयार है!";
-};
-img.onerror=()=>{status.innerText="❌ फिर से कोशिश करो";};
+function startCooldown(sec){
+canGenerate=false;
+let left=sec;
+clearInterval(countdown);
+document.getElementById('timer').innerText=`⏳ ${left} सेकंड रुको, फिर बना सकते हो (Free Limit)`;
+countdown=setInterval(()=>{
+left--; document.getElementById('timer').innerText=`⏳ ${left} सेकंड रुको...`;
+if(left<=0){clearInterval(countdown); document.getElementById('timer').innerText=""; canGenerate=true; document.querySelectorAll('.gbtn,.btn').forEach(b=>b.disabled=false);}
+},1000);
+document.querySelectorAll('.gbtn,.btn').forEach(b=>b.disabled=true);
 }
 
-async function createCanvasVideo(img, duration, videoEl, dlBtn){
-let canvas=document.createElement('canvas'); 
-canvas.width=1080; 
-canvas.height=1920;
-let ctx=canvas.getContext('2d');
-ctx.imageSmoothingEnabled=true;
-ctx.imageSmoothingQuality='high';
-let stream=canvas.captureStream(60);
-let recorder;
+async function generatePhoto(){
+if(!canGenerate){ alert('45 सेकंड रुको, Pollinations की लिमिट है'); return; }
+const raw=document.getElementById('prompt').value.trim();
+if(!raw) return alert('कुछ लिखो');
+const ph=document.getElementById('ph'), loader=document.getElementById('loader'), imgEl=document.getElementById('outImg'), videoEl=document.getElementById('outVideo'), dl=document.getElementById('dlBtn');
+ph.style.display='none'; loader.classList.add('show'); document.getElementById('loadText').innerText='असली HD फोटो बन रही है... 20 सेकंड लगेंगे'; imgEl.style.display='none'; videoEl.style.display='none'; dl.style.display='none';
 try{
-recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9', videoBitsPerSecond: 8000000 });
+const seed=Math.floor(Math.random()*9999999);
+const finalPrompt=encodeURIComponent(raw+", masterpiece, ultra realistic, real skin texture, sharp focus, highly detailed, 8k, respectful");
+const url=`https://image.pollinations.ai/prompt/${finalPrompt}?width=1080&height=1920&seed=${seed}&nologo=true&enhance=true&model=flux`;
+let img=new Image(); img.crossOrigin="anonymous"; img.src=url;
+await new Promise((res,rej)=>{img.onload=res; img.onerror=rej; setTimeout(()=>rej('timeout'),25000);});
+if(img.width<100){ throw new Error('limit'); }
+lastImage=img;
+imgEl.src=url; imgEl.style.display='block';
+dl.href=url; dl.download=`sanatan-photo-${Date.now()}.jpg`; dl.innerText='⬇️ HD फोटो सेव करें'; dl.style.display='inline-block';
+startCooldown(46);
 }catch(e){
-recorder=new MediaRecorder(stream,{mimeType:'video/webm', videoBitsPerSecond: 8000000 });
+ph.style.display='block';
+if((e+'').includes('limit') || (e+'').includes('timeout')){
+ph.innerText='⚠️ Free Limit आ गई! 45 सेकंड बाद खुद बन जायेगा...';
+setTimeout(()=>generatePhoto(),46000);
+startCooldown(46);
+}else{ph.innerText='❌ नेटवर्क धीमा है, 45 सेकंड बाद फिर दबाओ'; startCooldown(46);}
+}finally{loader.classList.remove('show');}
 }
-let chunks=[];
-recorder.ondataavailable=e=>{if(e.data.size>0) chunks.push(e.data);};
+
+async function generateVideoOnly(){
+if(!lastImage){ alert('पहले फोटो बनाओ!'); return; }
+const loader=document.getElementById('loader'), videoEl=document.getElementById('outVideo'), dl=document.getElementById('dlBtn');
+loader.classList.add('show'); document.getElementById('loadText').innerText=`${videoDurationSec}s HD वीडियो बन रहा है...`;
+await createCanvasVideo(lastImage, videoDurationSec, videoEl, dl);
+loader.classList.remove('show');
+}
+async function createCanvasVideo(img,duration,videoEl,dlBtn){
+let canvas=document.createElement('canvas'); canvas.width=1080; canvas.height=1920;
+let ctx=canvas.getContext('2d'); ctx.imageSmoothingQuality='high';
+let stream=canvas.captureStream(60);
+let recorder; try{recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9', videoBitsPerSecond:8000000});}catch(e){recorder=new MediaRecorder(stream,{mimeType:'video/webm', videoBitsPerSecond:8000000});}
+let chunks=[]; recorder.ondataavailable=e=>{if(e.data.size>0) chunks.push(e.data);};
 recorder.onstop=()=>{
 let blob=new Blob(chunks,{type:'video/webm'});
 let url=URL.createObjectURL(blob);
 videoEl.src=url; videoEl.style.display='block';
-dlBtn.href=url; dlBtn.download=`sanatan-HD-${Date.now()}.webm`; 
-dlBtn.innerText=`⬇️ ${duration}s HD वीडियो सेव करें`; 
-dlBtn.style.display='inline-block';
+dlBtn.href=url; dlBtn.download=`sanatan-video-${Date.now()}.webm`; dlBtn.innerText=`⬇️ ${duration}s HD वीडियो सेव करें`; dlBtn.style.display='inline-block';
 };
 recorder.start(100);
 let start=Date.now();
@@ -111,20 +152,15 @@ return new Promise(res=>{
 function draw(){
 let elapsed=(Date.now()-start)/1000;
 if(elapsed>=duration){recorder.stop(); res(); return;}
-let progress=elapsed/duration;
-let scale=1 + progress*0.12;
+let progress=elapsed/duration; let scale=1+progress*0.10;
 ctx.clearRect(0,0,canvas.width,canvas.height);
-let imgRatio=img.width/img.height; 
-let cRatio=canvas.width/canvas.height;
-let dw, dh;
-if(imgRatio > cRatio){ dh=canvas.height*scale; dw=img.width*(dh/img.height); }
-else{ dw=canvas.width*scale; dh=img.height*(dw/img.width); }
-let x=(canvas.width-dw)/2 + Math.sin(progress*0.8)*12;
+let imgRatio=img.width/img.height, cRatio=canvas.width/canvas.height, dw,dh;
+if(imgRatio>cRatio){dh=canvas.height*scale; dw=img.width*(dh/img.height);} else{dw=canvas.width*scale; dh=img.height*(dw/img.width);}
+let x=(canvas.width-dw)/2 + Math.sin(progress*0.6)*10;
 let y=(canvas.height-dh)/2;
-ctx.drawImage(img, x, y, dw, dh);
+ctx.drawImage(img,x,y,dw,dh);
 requestAnimationFrame(draw);
-}
-draw();
+} draw();
 });
 }
 </script>
