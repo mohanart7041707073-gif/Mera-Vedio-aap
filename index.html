@@ -50,4 +50,21 @@ textarea:focus{border-color:#ff1a1a}
 let mode='photo'; window.videoDurationSec=10;
 function setDur(s){window.videoDurationSec=s; document.querySelectorAll('#durRow .tab').forEach(t=>t.classList.remove('active')); document.getElementById('d'+s).classList.add('active'); if(mode==='video') document.getElementById('genBtn').innerText='🎥 '+s+'s वीडियो बनाओ';}
 function switchMode(m){mode=m; document.getElementById('photoTab').classList.remove('active'); document.getElementById('videoTab').classList.remove('active'); document.getElementById(m+'Tab').classList.add('active'); setDur(window.videoDurationSec); document.getElementById('genBtn').innerText=m==='photo'?'📸 फोटो बनाओ':'🎥 '+window.videoDurationSec+'s वीडियो बनाओ'; document.getElementById('durRow').style.display=m==='video'?'flex':'none';}
-function buildSafePrompt(hindi){return "Hindu goddess Durga, divine mother, benevolent beautiful Indian goddess, wearing traditional bright red saree with golden border, sitting on lion, divine glowing halo, peaceful smile, temple background, devotional art, highly detailed face, spiritual light, 9:16 portrait, ultra realistic, masterpiece, 4k, cinematic lighting, no weapon, no violence,
+function buildSafePrompt(hindi){return "Hindu goddess Durga, divine mother, benevolent beautiful Indian goddess, wearing traditional bright red saree with golden border, sitting on lion, divine glowing halo, peaceful smile, temple background, devotional art, highly detailed face, spiritual light, 9:16 portrait, ultra realistic, masterpiece, 4k, cinematic lighting, no weapon, no violence, serene, "+hindi.replace(/माँ|मां|दुर्गा|शेर/g,' ');}
+async function generate(){
+  const raw=document.getElementById('prompt').value.trim(); if(!raw) return alert('कुछ लिखो');
+  const btn=document.getElementById('genBtn'), loader=document.getElementById('loader'), ph=document.getElementById('ph'), img=document.getElementById('outImg'), video=document.getElementById('outVideo'), dl=document.getElementById('dlBtn');
+  btn.disabled=true; ph.style.display='none'; img.style.display='none'; video.style.display='none'; dl.style.display='none'; loader.classList.add('show');
+  document.getElementById('loadText').innerText=mode==='photo'?'9:16 फोटो बन रही है...':window.videoDurationSec+'s 9:16 वीडियो बन रहा है...';
+  try{
+    const safePrompt=buildSafePrompt(raw); const seed=Math.floor(Math.random()*9999999);
+    const url=`https://image.pollinations.ai/prompt/${encodeURIComponent(safePrompt)}?width=720&height=1280&seed=${seed}&nologo=true&model=flux&enhance=true`;
+    const loadedImg=new Image(); loadedImg.crossOrigin="anonymous"; loadedImg.src=url;
+    await new Promise((res,rej)=>{loadedImg.onload=res; loadedImg.onerror=()=>rej(new Error('load failed')); setTimeout(()=>rej(new Error('timeout')),25000);});
+    if(mode==='photo'){img.src=url; img.style.display='block'; dl.href=url; dl.download='maa-durga-9x16.jpg'; dl.style.display='inline-block'; dl.innerText='⬇️ फोटो गैलरी में सेव करें';}
+    else{const canvas=document.createElement('canvas'); canvas.width=720; canvas.height=1280; const ctx=canvas.getContext('2d'); const stream=canvas.captureStream(30); const recorder=new MediaRecorder(stream,{mimeType:'video/webm;codecs=vp9'}); let chunks=[]; recorder.ondataavailable=e=>{if(e.data.size>0) chunks.push(e.data);}; const blobPromise=new Promise(resolve=>{recorder.onstop=()=>resolve(new Blob(chunks,{type:'video/webm'}));}); recorder.start(100); let frames=0; const totalFrames=window.videoDurationSec*30; function draw(){if(frames>=totalFrames){recorder.stop(); return;} let p=frames/totalFrames; let scale=1+p*0.35; let moveX=Math.sin(p*Math.PI*2)*10; let moveY=-p*60; let w=canvas.width*scale, h=canvas.height*scale; let x=(canvas.width-w)/2+moveX, y=(canvas.height-h)/2+moveY; ctx.clearRect(0,0,canvas.width,canvas.height); ctx.drawImage(loadedImg,x,y,w,h); ctx.fillStyle=`rgba(255,210,120,${0.03+p*0.05})`; ctx.fillRect(0,0,canvas.width,canvas.height); frames++; requestAnimationFrame(draw);} draw(); const blob=await blobPromise; const vUrl=URL.createObjectURL(blob); video.src=vUrl; video.style.display='block'; dl.href=vUrl; dl.download='maa-durga-'+window.videoDurationSec+'s-9x16.webm'; dl.style.display='inline-block'; dl.innerText='⬇️ '+window.videoDurationSec+'s वीडियो गैलरी में सेव करें'; video.play();}
+  }catch(e){ph.style.display='block'; ph.innerHTML='❌ नहीं बना, दोबारा ट्राय करो';} finally{loader.classList.remove('show'); btn.disabled=false;}
+}
+</script>
+</body>
+</html>
